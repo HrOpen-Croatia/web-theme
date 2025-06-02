@@ -2,8 +2,6 @@
 
 A minimalistic, retro-style WordPress theme inspired by [Terminal CSS](https://terminalcss.xyz) and styled with elements from the [Hugo Terminal theme](https://github.com/panr/hugo-theme-terminal).
 
-Perfect for developers, tech bloggers, or anyone who loves terminal aesthetics.
-
 ## Features
 
 - Clean, responsive layout with terminal look
