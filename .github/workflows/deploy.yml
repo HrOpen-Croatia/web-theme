@@ -7,22 +7,34 @@ on:
 
 jobs:
   build:
-    name: Build and Publish Theme
+    name: Build, Tag and Publish Theme
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create releases and tags
 
     steps:
-      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Zip the theme folder
-      - name: Create theme zip
+      - name: Set up Node (required for github-tag-action)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch  # change to 'minor' or 'major' if needed
+
+      - name: Zip the theme
         run: |
           zip -r terminal-theme.zip . -x ".git*" ".github*" "node_modules*" "*.zip"
 
-      # Upload the zip file as an artifact
-      - name: Upload theme zip
-        uses: actions/upload-artifact@v4.6.2
+      - name: Create GitHub Release and attach ZIP
+        uses: softprops/action-gh-release@v2
         with:
-          name: terminal-theme
-          path: terminal-theme.zip
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          files: terminal-theme.zip
