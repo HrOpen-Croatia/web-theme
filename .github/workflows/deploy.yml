@@ -1,0 +1,28 @@
+name: Deploy WordPress Theme
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Publish Theme
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Zip the theme folder
+      - name: Create theme zip
+        run: |
+          zip -r terminal-theme.zip . -x ".git*" ".github*" "node_modules*" "*.zip"
+
+      # Upload the zip file as an artifact
+      - name: Upload theme zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: terminal-theme
+          path: terminal-theme.zip
