@@ -10,11 +10,13 @@ jobs:
     name: Build, Tag and Publish Theme
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Required to create releases and tags
+      contents: write  # Required to create tags and releases
 
     steps:
-      - name: Checkout code
+      - name: Checkout full history
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed to generate changelog using git log
 
       - name: Set up Node (required for github-tag-action)
         uses: actions/setup-node@v3
@@ -26,15 +28,26 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch  # change to 'minor' or 'major' if needed
+          default_bump: patch  # Change to 'minor' or 'major' if needed
 
       - name: Zip the theme
         run: |
           zip -r terminal-theme.zip . -x ".git*" ".github*" "node_modules*" "*.zip"
 
+      - name: Get commit messages since last tag
+        id: changelog
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0)
+          echo "Last tag: $LAST_TAG"
+          LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s (%an)")
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release and attach ZIP
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          name: terminal-theme ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.changelog.outputs.changelog }}
           files: terminal-theme.zip
