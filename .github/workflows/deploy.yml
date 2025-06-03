@@ -53,18 +53,21 @@ jobs:
           files: terminal-theme.zip
 
       - name: Deploy clean theme via FTP
+        env:
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
         run: |
           mkdir deploy-clean
           rsync -av --exclude=".git*" --exclude=".github" --exclude="node_modules" --exclude="*.zip" ./ deploy-clean/
           sudo apt-get update
           sudo apt-get install -y lftp
-          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" -e "
+          lftp -u "$FTP_USER","$FTP_PASS" -e "
             set ftp:passive-mode true;
             set ssl:verify-certificate no;
-            open open.hr;
             mirror -R --delete --verbose deploy-clean/ public_html/wp-content/themes/terminal-theme;
             bye
-          "
+          " open.hr
+
 
 
 
