@@ -52,7 +52,7 @@ jobs:
           body: ${{ steps.changelog.outputs.changelog }}
           files: terminal-theme.zip
 
-            - name: Deploy clean theme via FTP
+      - name: Deploy clean theme via FTP
         run: |
           mkdir deploy-clean
           rsync -av --exclude=".git*" --exclude=".github" --exclude="node_modules" --exclude="*.zip" ./ deploy-clean/
