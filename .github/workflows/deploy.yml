@@ -60,7 +60,9 @@ jobs:
           sudo apt-get install -y lftp
           lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -e "
             set ssl:verify-certificate no;
+            set ftp:passive-mode true;
             mirror -R --delete --verbose deploy-clean/ public_html/wp-content/themes/terminal-theme;
             bye
           " open.hr
+
 
