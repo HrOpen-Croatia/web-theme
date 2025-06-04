@@ -34,3 +34,17 @@ Tags: terminal, css, minimalist
         --code-bg-color:#e8eff2;
         }
 }
+
+.terminal-menu ul ul {
+    display: none;
+    margin-left: 1rem;
+}
+
+.terminal-menu li:hover > ul {
+    display: block;
+}
+
+.terminal-menu ul {
+    list-style-type: none;
+    padding-left: 0;
+}

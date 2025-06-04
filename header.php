@@ -69,24 +69,39 @@
                 </div>
             </header>
             <nav class="terminal-menu">
-                <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                <ul>
                     <?php
                     $locations = get_nav_menu_locations();
                     if (isset($locations['primary'])) {
                         $menu_id = $locations['primary'];
                         $menu_items = wp_get_nav_menu_items($menu_id);
 
-                        if ($menu_items) {
-                            $position = 1;
-                            foreach ($menu_items as $item) {
-                                echo '<li property="itemListElement" typeof="ListItem">';
-                                echo '<a property="item" typeof="WebPage" href="' . esc_url($item->url) . '">';
-                                echo '<span property="name">' . esc_html($item->title) . '</span>';
-                                echo '</a>';
-                                echo '<meta property="position" content="' . $position . '">';
-                                echo '</li>';
-                                $position++;
+                        // Organiziraj hijerarhiju
+                        $menu_tree = [];
+                        foreach ($menu_items as $item) {
+                            if (!$item->menu_item_parent) {
+                                $menu_tree[$item->ID] = [
+                                    'item' => $item,
+                                    'children' => [],
+                                ];
+                            } else {
+                                $menu_tree[$item->menu_item_parent]['children'][] = $item;
                             }
+                        }
+
+                        foreach ($menu_tree as $entry) {
+                            echo '<li>';
+                            echo '<a href="' . esc_url($entry['item']->url) . '">' . esc_html($entry['item']->title) . '</a>';
+
+                            if (!empty($entry['children'])) {
+                                echo '<ul>';
+                                foreach ($entry['children'] as $child) {
+                                    echo '<li><a href="' . esc_url($child->url) . '">' . esc_html($child->title) . '</a></li>';
+                                }
+                                echo '</ul>';
+                            }
+
+                            echo '</li>';
                         }
                     }
                     ?>
